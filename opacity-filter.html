@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+  <title></title>
+  <style>
+  body {
+    background-color: black;
+    color: white;
+    margin: 0;
+    min-height: 100vh;
+    min-width: 100vw;
+  }
+
+  *,
+  *::after,
+  *::before {
+    margin: 0;
+    padding: 0;
+    font-size: inherit;
+    box-sizing: border-box;
+  }
+
+  img {
+    max-width: 100%;
+  }
+
+  #window,
+  #window-shadow {
+    background: rgb(57, 57, 57);
+    position: absolute;
+    top: 25px;
+    right: 25px;
+    max-width: 100vmin;
+    max-height: 100vmin;
+    width: 50vmin;
+    height: 50vmin;
+    overflow: hidden;
+  }
+
+  #window {
+    border: 1px solid rgb(47, 47, 47);
+  }
+
+  #window-shadow {
+    background-color: rgb(47, 47, 47);
+    transform-origin: 50% 50vh;
+    transform: translateX(-30%) translateY(55%) scaleY(0.33) rotateX(180deg) skew(20deg);
+    filter: blur(7px);
+    overflow: hidden;
+    z-index: -1;
+  }
+
+  #window::before,
+  #window-shadow::before,
+  #window::after,
+  #window-shadow::after {
+    background-color: black;
+    content: "";
+    position: absolute;
+  }
+
+  #window-shadow::before,
+  #window-shadow::after {
+    background-color: black;
+  }
+
+  #window::before,
+  #window-shadow::before {
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    z-index: 1;
+  }
+
+  #window::after,
+  #window-shadow::after {
+    top: 0;
+    left: 50%;
+    width: 1px;
+    height: 100%;
+  }
+
+  #shade,
+  #shade-shadow {
+    background: black;
+    position: absolute;
+    left: 0;
+    top: -70%;
+    width: 100%;
+    height: 100%;
+    cursor: grab;
+    z-index: 1;
+  }
+
+  #shade-shadow {
+    background-color: black;
+  }
+
+  #handle {
+    background: rgb(57, 57, 57);
+    position: absolute;
+    bottom: 13px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 13%;
+    height: 2px;
+  }
+
+  @media (max-width: 640px) {
+    #window,
+    #window-shadow {
+      max-width: calc(100vmin - 50px);
+      max-height: calc(100vmin - 50px);
+      width: 100vw;
+      height: 100vw;
+    }
+  }
+    
+    #light {
+      margin: 6vw;
+      width: 140px;
+      height: 140px;
+      background: violet;
+      
+      filter: opacity(70%);
+    }
+  </style>
+</head>
+<body>
+  
+  <!--
+<blockquote class="twitter-tweet" data-theme="light"><p lang="en" dir="ltr">I do not give a flying FUCK about Fonts... Weirdo shit. <a href="https://t.co/bScWTlSi8R">https://t.co/bScWTlSi8R</a></p>&mdash; ICE T (@FINALLEVEL) <a href="https://twitter.com/FINALLEVEL/status/1640823012189454337?ref_src=twsrc%5Etfw">March 28, 2023</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+-->
+  
+<div id="light"></div>
+
+<div id="window">
+
+  <div id="shade">
+    <div id="handle"></div>
+  </div>
+</div>
+
+<div id="window-shadow">
+  <div id="shade-shadow">
+  </div>
+</div>
+
+<script>
+dragElement(document.getElementById('shade'));
+
+function dragElement(element) {
+  var y_1 = 0,
+      y_2 = 0;
+
+  element.addEventListener('touchstart', dragMouseDown);
+  element.addEventListener('mousedown', dragMouseDown);
+
+  function dragMouseDown(e) {
+    e = e || window.event;
+    e.preventDefault();
+
+    // get event's y coordinate
+    y_2 = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
+
+    document.addEventListener('touchend', closeDragElement);
+    document.addEventListener('mouseup', closeDragElement);
+
+    document.addEventListener('touchmove', elementDrag);
+    document.addEventListener('mousemove', elementDrag);
+  }
+
+  function elementDrag(e) {
+    e = e || window.event;
+    e.preventDefault();
+
+    // get event's y coordinate
+    var clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
+
+    // calculate the new cursor position and update
+    y_1 = y_2 - clientY;
+    y_2 = clientY;
+
+    // set the element's new position. max: 0%, min: -85%
+    element.style.top =
+      Math.max(
+        -85,
+        Math.min(0, ((element.offsetTop - y_1) / element.offsetHeight) * 100)
+      ) + '%';
+
+    // set shadow's position so it mirrors the shade
+    document.getElementById('shade-shadow').style.top =
+      Math.max(
+        -85,
+        Math.min(0, ((element.offsetTop - y_1) / element.offsetHeight) * 100)
+      ) + '%';
+    
+    // set light, Math ABS ...
+    document.getElementById('light').style.filter = "brightness(" 
+      + 
+      Math.abs(Math.max(
+        -85,
+        Math.min(0, ((element.offsetTop - y_1) / element.offsetHeight) * 100)
+      ))
+      + "%)";
+  }
+
+  // stop moving when mouse button is released
+  function closeDragElement() {
+    document.removeEventListener('touchend', closeDragElement);
+    document.removeEventListener('mouseup', closeDragElement);
+    document.removeEventListener('touchmove', elementDrag);
+    document.removeEventListener('mousemove', elementDrag);
+  }
+}
+</script>
+  
+</body>
+</html>
